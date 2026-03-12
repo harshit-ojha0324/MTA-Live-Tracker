@@ -47,6 +47,9 @@ A production-grade real-time NYC subway status dashboard and route planner. Buil
 | Cache | Redis (in-memory fallback for local dev) |
 | Database | PostgreSQL via SQLAlchemy (SQLite fallback for local dev) |
 | Auth | Firebase (Google sign-in + Admin SDK token verification) |
+| Frontend tests | Vitest |
+| Backend tests | pytest + pytest-cov |
+| CI | GitHub Actions |
 
 ---
 
@@ -54,12 +57,19 @@ A production-grade real-time NYC subway status dashboard and route planner. Buil
 
 ```
 .
+├── .github/
+│   └── workflows/
+│       └── ci.yml              # GitHub Actions: lint + test + build on every push/PR
 ├── src/                        # React frontend
 │   ├── components/             # StatusTab, MapTab, RouteTab, FavoritesTab, AuthButton
 │   ├── constants/              # SUBWAY_LINES, STATIONS, EDGES data
 │   ├── context/                # Firebase auth state (AuthContext)
 │   ├── hooks/                  # useServiceStatus (Socket.IO), useFavorites (API + localStorage)
-│   ├── lib/                    # dijkstra.js, socket.js singleton, firebase.js init
+│   ├── lib/
+│   │   ├── dijkstra.js         # Shortest-path algorithm
+│   │   ├── dijkstra.test.js    # Vitest suite (15 tests)
+│   │   ├── socket.js           # Socket.IO singleton
+│   │   └── firebase.js         # Firebase init
 │   ├── api/                    # Axios wrapper for /api/favorites
 │   ├── theme.js                # Shared color tokens
 │   └── App.jsx                 # Root component
@@ -68,14 +78,21 @@ A production-grade real-time NYC subway status dashboard and route planner. Buil
     ├── app.py                  # App factory, Socket.IO handlers, broadcaster startup
     ├── config.py               # Environment-based configuration
     ├── extensions.py           # db, socketio, migrate singletons
+    ├── pytest.ini              # pytest config
+    ├── requirements.txt        # Production dependencies
+    ├── requirements-dev.txt    # + pytest, pytest-cov
     ├── models/                 # SQLAlchemy ORM (Favorite)
-    ├── routes/                 # /api/favorites, /api/health, /api/status
+    ├── routes/                 # /api/favorites, /api/health, /api/status, /api/elevators
     ├── services/
     │   ├── mta_feed.py         # MTA JSON/GTFS-RT fetcher + simulation fallback
     │   ├── broadcaster.py      # Background poll thread → cache → emit
     │   └── cache.py            # Redis with in-memory fallback
-    └── auth/
-        └── firebase_auth.py    # @require_auth decorator; no-op when unconfigured
+    ├── auth/
+    │   └── firebase_auth.py    # @require_auth decorator; no-op when unconfigured
+    └── tests/
+        ├── test_mta_feed.py    # Parsing logic, severity rules, elevator parsing (19 tests)
+        ├── test_cache.py       # In-memory cache get/set/clear (6 tests)
+        └── test_routes.py      # Flask route integration tests (9 tests)
 ```
 
 ---
@@ -92,8 +109,8 @@ A production-grade real-time NYC subway status dashboard and route planner. Buil
 ### 1. Clone the repo
 
 ```bash
-git clone https://github.com/your-username/nyc-transit-hub.git
-cd nyc-transit-hub
+git clone https://github.com/harshit-ojha0324/MTA-Live-Tracker.git
+cd MTA-Live-Tracker
 ```
 
 ### 2. Frontend setup
@@ -221,10 +238,49 @@ When Firebase is not configured, `@require_auth` is a no-op that sets `user_id =
 Route planning uses **Dijkstra's algorithm** on an undirected weighted graph. Edge weights represent approximate travel time in minutes. The algorithm runs entirely in the browser — no server round-trip needed.
 
 ```
-dijkstra(startId, endId) → { path: string[], time: number }
+dijkstra(startId, endId) → { path: string[], time: number, stops: number }
 ```
 
-The graph is defined in [`src/constants/edges.js`](src/constants/edges.js) (~110 edges across ~60 stations) and [`src/constants/stations.js`](src/constants/stations.js). Both files are plain JS arrays — extending the graph with new stations or lines requires no algorithm changes.
+`stops` is the sum of real subway stops traversed along the chosen path — each edge carries a 4th element representing how many actual stops it spans (since the graph collapses many intermediate stops into single edges for ~60 major stations).
+
+The graph is defined in [`src/constants/edges.js`](src/constants/edges.js) (~120 edges across 63 stations) and [`src/constants/stations.js`](src/constants/stations.js). Both files are plain JS arrays — extending the graph with new stations or lines requires no algorithm changes.
+
+---
+
+## Testing
+
+### Backend (pytest)
+
+```bash
+cd backend
+source venv/bin/activate
+pip install -r requirements-dev.txt
+pytest
+```
+
+| Suite | Coverage |
+|---|---|
+| `test_mta_feed.py` | Translation parsing, alert severity, no-downgrade rule, elevator parsing, simulation fallback |
+| `test_cache.py` | In-memory cache set / get / overwrite / clear (no Redis required) |
+| `test_routes.py` | `/api/health`, `/api/status`, `/api/elevators`, `/api/favorites` via Flask test client |
+
+### Frontend (Vitest)
+
+```bash
+npm run test:run      # single run
+npm test              # watch mode
+```
+
+| Suite | Coverage |
+|---|---|
+| `dijkstra.test.js` | Adjacent routes, multi-hop paths, time symmetry, isolated stations reachable, stop counts, invalid IDs, `getSharedLine` |
+
+### CI (GitHub Actions)
+
+Every push and pull request to `main` runs the full pipeline automatically:
+
+1. **Backend job** — `pip install` → `pytest --cov`
+2. **Frontend job** — `npm ci` → `eslint` → `vitest run` → `vite build`
 
 ---
 

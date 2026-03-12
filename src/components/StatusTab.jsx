@@ -76,7 +76,7 @@ export default function StatusTab({ serviceStatus, lastUpdate, connected }) {
             { label: "Delays",       count: counts.delays,  color: T.warning, bg: T.warningBg },
             { label: "Planned Work", count: counts.planned, color: T.planned, bg: T.plannedBg },
             { label: "Suspended",    count: counts.suspend, color: T.danger,  bg: T.dangerBg  },
-          ].map(({ label, count, color, bg }) => (
+          ].map(({ label, count, color }) => (
             <div key={label} style={{
               background: T.surface,
               borderTop: `5px solid ${color}`,

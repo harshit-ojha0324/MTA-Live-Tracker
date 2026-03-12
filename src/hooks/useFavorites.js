@@ -26,6 +26,7 @@ export function useFavorites() {
   useEffect(() => {
     if (user && idToken) {
       // Signed in → load from API, migrate any localStorage items
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(true);
       api.getFavorites()
         .then(async (remote) => {

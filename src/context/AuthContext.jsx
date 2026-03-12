@@ -7,11 +7,10 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser]       = useState(null);
   const [idToken, setIdToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(auth !== null);
 
   useEffect(() => {
     if (!auth) {
-      setLoading(false);
       return;
     }
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -57,6 +56,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   return useContext(AuthContext);
 }

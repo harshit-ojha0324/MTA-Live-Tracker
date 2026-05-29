@@ -10,6 +10,7 @@ from config import Config
 from extensions import db, socketio, migrate
 from auth.firebase_auth import init_firebase
 from services import cache, broadcaster
+from routes.ai import ai_bp
 from routes.favorites import favorites_bp
 from routes.health import health_bp
 
@@ -25,6 +26,7 @@ def create_app() -> Flask:
     CORS(app, origins=[Config.CORS_ORIGIN])
 
     # Blueprints
+    app.register_blueprint(ai_bp)
     app.register_blueprint(favorites_bp)
     app.register_blueprint(health_bp)
 

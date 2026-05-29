@@ -33,16 +33,25 @@ backend/**/__pycache__/
 backend/*.db
 backend/instance/
 
-# Environment files (never commit real secrets)
+# Environment files — never commit secrets
+.env
+.env.*
+!.env.example
 backend/.env
-.env.local
-.env.production
+backend/.env.*
+!backend/.env.example
 
-# Firebase service account (never commit)
+# Firebase / Google service accounts — never commit
 *serviceAccount*.json
 *firebase-adminsdk*.json
+google-credentials*.json
+*-credentials.json
 *.pem
 *.key
+
+# Cloud Build / GCP
+cloudbuild_secrets.yaml
+gcp-key.json
 
 # Docker
 .dockerignore

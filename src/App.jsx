@@ -9,12 +9,14 @@ import StatusTab from "./components/StatusTab";
 import MapTab from "./components/MapTab";
 import RouteTab from "./components/RouteTab";
 import FavoritesTab from "./components/FavoritesTab";
+import AiTab from "./components/AiTab";
 
 const TABS = [
   { id: "status",    label: "Service Status", icon: "◉" },
   { id: "map",       label: "Transit Map",    icon: "◎" },
   { id: "route",     label: "Route Planner",  icon: "⇢" },
   { id: "favorites", label: "Favorites",      icon: "★" },
+  { id: "ai",        label: "Ask AI",         icon: "◈" },
 ];
 
 function Inner() {
@@ -137,6 +139,7 @@ function Inner() {
             serviceStatus={serviceStatus}
           />
         )}
+        {tab === "ai" && <AiTab />}
       </div>
 
       <style>{`

@@ -12,3 +12,4 @@ class Config:
     REDIS_URL = os.environ.get("REDIS_URL", "")
     POLL_INTERVAL = int(os.environ.get("POLL_INTERVAL", "30"))
     CORS_ORIGIN = os.environ.get("CORS_ORIGIN", "http://localhost:5173")
+    GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")

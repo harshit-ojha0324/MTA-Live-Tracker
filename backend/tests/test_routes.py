@@ -66,6 +66,22 @@ def test_elevators_returns_list(client):
     assert isinstance(data, list)
 
 
+# ── /api/ai/chat ─────────────────────────────────────────────────
+
+def test_ai_chat_missing_message(client):
+    """Empty body should return 400."""
+    resp = client.post("/api/ai/chat", json={})
+    assert resp.status_code == 400
+    assert "error" in resp.get_json()
+
+
+def test_ai_chat_no_api_key(client):
+    """Without GEMINI_API_KEY set, endpoint returns 503."""
+    resp = client.post("/api/ai/chat", json={"message": "hello"})
+    assert resp.status_code == 503
+    assert "error" in resp.get_json()
+
+
 # ── /api/favorites (unauthenticated) ─────────────────────────────
 
 def test_favorites_get_without_auth(client):

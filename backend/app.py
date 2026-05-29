@@ -2,9 +2,11 @@ import eventlet
 eventlet.monkey_patch()
 
 import os
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_cors import CORS
 from flask_socketio import emit
+
+_FRONTEND = os.path.join(os.path.dirname(__file__), "..", "frontend", "dist")
 
 from config import Config
 from extensions import db, socketio, migrate
@@ -37,6 +39,16 @@ def create_app() -> Flask:
 
     with app.app_context():
         db.create_all()
+
+    # Serve React frontend for any non-API route (production only)
+    if os.path.isdir(_FRONTEND):
+        @app.route("/", defaults={"path": ""})
+        @app.route("/<path:path>")
+        def serve_frontend(path):
+            target = os.path.join(_FRONTEND, path)
+            if path and os.path.isfile(target):
+                return send_from_directory(_FRONTEND, path)
+            return send_from_directory(_FRONTEND, "index.html")
 
     return app
 

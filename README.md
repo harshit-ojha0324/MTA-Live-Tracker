@@ -48,7 +48,7 @@ A production-grade real-time NYC subway status dashboard, route planner, and AI 
 | AI | Gemini 2.5 Flash via Google Generative AI SDK |
 | Real-time | Socket.IO WebSocket push |
 | Transit data | MTA GTFS-RT / JSON feeds (no API key required) |
-| Cache | Redis (in-memory fallback for local dev) |
+| Cache | Redis (in-memory fallback when `REDIS_URL` is unset — including the current Cloud Run deploy) |
 | Database | PostgreSQL via SQLAlchemy (SQLite fallback for local dev) |
 | Auth | Firebase (Google sign-in + Admin SDK token verification) |
 | Frontend tests | Vitest |
@@ -107,7 +107,7 @@ A production-grade real-time NYC subway status dashboard, route planner, and AI 
     └── tests/
         ├── test_mta_feed.py    # Parsing logic, severity rules, elevator parsing (19 tests)
         ├── test_cache.py       # In-memory cache set / get / overwrite / clear (6 tests)
-        └── test_routes.py      # Flask route integration tests (9 tests)
+        └── test_routes.py      # Flask route integration tests (12 tests)
 ```
 
 ---

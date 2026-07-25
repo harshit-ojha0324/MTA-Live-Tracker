@@ -94,7 +94,7 @@ export default function AiTab() {
             <GeminiLogo />
           </div>
           <h3 style={{ margin: "0 0 8px", fontSize: 16, color: T.text }}>AI Assistant Not Configured</h3>
-          <p style={{ margin: 0, fontSize: 13, color: T.textDim, maxWidth: 420, margin: "0 auto" }}>
+          <p style={{ fontSize: 13, color: T.textDim, maxWidth: 420, margin: "0 auto" }}>
             Set a <code style={{ background: T.bgAlt, padding: "1px 5px", borderRadius: 2 }}>GEMINI_API_KEY</code> environment
             variable to enable the AI Transit Assistant.
             Get a free key at{" "}
